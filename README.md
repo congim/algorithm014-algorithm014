@@ -1,25 +1,29 @@
-# 极客大学「算法训练营-第14期」作业提交仓库
+学习笔记
+
+### 五毒神掌
+1. 5-10 分钟读题和思考，如果没有思路，看题解，默写代码
+1. 马上自己写，提交LeetCode，多种解法，体会优化
+1. 24 小时之后，再重复做题
+1. 一周后重复做题
+1. 面试前一周恢复性训练
+
+### 切题四件套
+1. 理清题意，确定题目的要求
+2. 想尽可能多的解法，对比几种写法的时空复杂度，找到比较好的解法
+3. 尽可能多地动手写
+4. 测试用例
+
+# 课程表
+
+## 第一周
+### 实战
+| 题号 | 名称 | 难度 | 分类 | 备注 |
+| --- | --- | --- | --- | --- |
+| [146](https://leetcode.com/problems/lru-cache/discuss/?currentPage=1&orderBy=most_votes&query=) | [LRU缓存机制](https://leetcode-cn.com/problems/lru-cache/)| 🟡 中等 | 链表 | - |
 
 
+### 课后作业
+| 题号 | 名称 | 难度 | 分类 | 备注 |
+| --- | --- | --- | --- | --- |
+| [26](https://leetcode.com/problems/remove-duplicates-from-sorted-array/discuss/?currentPage=1&orderBy=most_votes&query=) | [删除排序数组中的重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)| 🟢 简单 | 数组、链表、跳表 | - |
 
-
-## 仓库目录结构说明
-
-1. `week01/` 代表第一周作业提交目录，以此类推。
-2. 请在对应周的目录下新建或修改自己的代码作业。
-2. 每周均有一个 `REDAME.md` 文档，你可以将自己当周的学习心得以及做题过程中的思考记录在该文档中。
-
-## 作业提交规则
- 
-1. 先将本仓库 Fork 到自己 GitHub 账号下。
-2. 将 Fork 后的仓库 Clone 到本地，然后在本地仓库中对应周的目录下新建或修改自己的代码作业，当周的学习总结写在对应周的README.md文件里。
-3. 在本地仓库完成作业后，push 到自己的 GitHub 远程仓库。
-4. 最后将远程仓库中当周的作业链接，按格式贴到班级仓库对应学习周的issue下面。
-5. 提交issue请务必按照规定格式进行提交，否则作业统计工具将抓取不到你的作业提交记录。 
-
-详细的作业提交流程可以查阅：https://shimo.im/docs/m5rtM8K8rNsjw5jk/ 
-
-
-## 注意事项
-
- 如果对 Git 和 GitHub 不太了解，请参考 [Git 官方文档](https://git-scm.com/book/zh/v2) 或者极客时间的[《玩转 Git 三剑客》](https://time.geekbang.org/course/intro/145)视频课程。
