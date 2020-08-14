@@ -24,101 +24,327 @@ cache.get(4);       // 返回  4
 链接：https://leetcode-cn.com/problems/lru-cache
 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
+
 // LinkNode ...
 type LinkNode struct {
-	key   int       // 当cache元素满之后，删除map中当数据可以直接使用key
-	value int       // value
-	pre   *LinkNode // 双向链表，前置
-	next  *LinkNode // 双向链表，后续
+	key   int
+	value int
+	prev  *LinkNode
+	next  *LinkNode
 }
 
-// LRUCache ..
+// LRUCache ...
 type LRUCache struct {
-	cache map[int]*LinkNode // 数据缓存
-	cap   int               // 容量
-	head  *LinkNode         // 首节点
-	tail  *LinkNode         // 尾节点
+	cap   int
+	cache map[int]*LinkNode
+	head  *LinkNode
+	tail  *LinkNode
+}
+
+func newNode(key, value int) *LinkNode {
+	return &LinkNode{
+		key:   key,
+		value: value,
+	}
 }
 
 // Constructor ...
 func Constructor(capacity int) LRUCache {
-	// go会自动初始化,无须0,0,nil,nil来初始化
-	tail := &LinkNode{}
-	head := &LinkNode{}
-
-	// 双向链表
-	head.next = tail
-	tail.pre = head
-
-	return LRUCache{
-		cache: make(map[int]*LinkNode),
+	lruc := LRUCache{
+		cache: map[int]*LinkNode{},
+		head:  newNode(0, 0),
+		tail:  newNode(0, 0),
 		cap:   capacity,
-		head:  head,
-		tail:  tail,
 	}
+
+	lruc.head.next = lruc.tail
+	lruc.tail.prev = lruc.head
+	return lruc
 }
 
 // Get ...
 func (l *LRUCache) Get(key int) int {
-	if node, ok := l.cache[key]; ok {
-		// 优先级更新,将该元素移动到链表head位上去
-		// nil<-head->next,
-		// pre<-node->next
-		// 将node到前后关系维护一下,说白了直接删除node
-		node.pre.next = node.next
-		node.next.pre = node.pre
-
-		tmp := l.head
-		// node本身要提到前面，所以他到前置为nil
-		node.pre = nil
-		// 当前head的pre为node
-		tmp.pre = node
-		// node的next为当前的head
-		node.next = tmp
-		l.head = node
-		return node.value
+	// 找不到直接返回-1
+	node, ok := l.cache[key]
+	if !ok {
+		return -1
 	}
-	return -1
+	// 找到的话要移动node到head位置
+	// 过程如下:
+	// 当前位置删除: node.prev.next -- node -- node.next  (node.prev.next = node.next; node.next.prev = node.prev)
+	node.prev.next = node.next
+	node.next.prev = node.prev
+
+	// 将node移动到head位置
+	node.prev = l.head
+	node.next = l.head.next
+	l.head.next.prev = node
+	l.head.next = node
+
+	return node.value
 }
 
 // Put ...
 func (l *LRUCache) Put(key int, value int) {
-	if node, ok := l.cache[key]; ok {
-		node.value = value
-		// 存在直接移动到head
-		// 先将node删除
-		node.pre.next = node.next
-		node.next.pre = node.pre
-
-		tmp := l.head
-		// node本身要提到前面，所以他到前置为nil
-		node.pre = nil
-		// 当前head的pre为node
-		tmp.pre = node
-		// node的next为当前的head
-		node.next = tmp
-		l.head = node
+	if _, ok := l.cache[key]; !ok {
+		node := newNode(key, value)
 		l.cache[key] = node
+		// l.addToHead(node)
+		// 将node移动到head位置
+		node.prev = l.head
+		node.next = l.head.next
+		l.head.next.prev = node
+		l.head.next = node
+		if len(l.cache) > l.cap {
+			removed := l.removeTail()
+			delete(l.cache, removed.key)
+		}
 	} else {
-		// 如果已经超了，那么删除链表tail
-		if len(l.cache) == l.cap {
-			delete(l.cache, l.tail.key)
-			pre := l.tail.pre
-			pre.next = nil
-			l.tail = pre
-		}
+		node := l.cache[key]
+		node.value = value
+		// l.moveToHead(node)
+		node.prev.next = node.next
+		node.next.prev = node.prev
 
-		// 不存在直接插入到head
-		node := &LinkNode{
-			key:   key,
-			value: value,
-		}
-		node.pre = nil
-		node.next = l.head
-		l.head.pre = node
-		l.head = node
-		// 缓存node
-		l.cache[key] = node
+		node.prev = l.head
+		node.next = l.head.next
+		l.head.next.prev = node
+		l.head.next = node
+
 	}
-	return
 }
+
+func (l *LRUCache) addToHead(node *LinkNode) {
+	node.prev = l.head
+	node.next = l.head.next
+	l.head.next.prev = node
+	l.head.next = node
+}
+
+func (l *LRUCache) removeNode(node *LinkNode) {
+	node.prev.next = node.next
+	node.next.prev = node.prev
+}
+
+func (l *LRUCache) moveToHead(node *LinkNode) {
+	l.removeNode(node)
+	l.addToHead(node)
+}
+
+func (l *LRUCache) removeTail() *LinkNode {
+	node := l.tail.prev
+	l.removeNode(node)
+	return node
+}
+
+///////////////////////
+
+// LinkNode ...
+// type LinkNode struct {
+// 	key   int
+// 	value int
+// 	prev  *LinkNode
+// 	next  *LinkNode
+// }
+
+// // LRUCache ...
+// type LRUCache struct {
+// 	cap   int
+// 	cache map[int]*LinkNode
+// 	head  *LinkNode
+// 	tail  *LinkNode
+// }
+
+// func newNode(key, value int) *LinkNode {
+// 	return &LinkNode{
+// 		key:   key,
+// 		value: value,
+// 	}
+// }
+
+// // Constructor ...
+// func Constructor(capacity int) LRUCache {
+// 	lruc := LRUCache{
+// 		cache: map[int]*LinkNode{},
+// 		head:  newNode(0, 0),
+// 		tail:  newNode(0, 0),
+// 		cap:   capacity,
+// 	}
+
+// 	lruc.head.next = lruc.tail
+// 	lruc.tail.prev = lruc.head
+// 	return lruc
+// }
+
+// // Get ...
+// func (l *LRUCache) Get(key int) int {
+// 	// 找不到直接返回-1
+// 	node, ok := l.cache[key]
+// 	if !ok {
+// 		return -1
+// 	}
+// 	// 找到的话要移动node到head位置
+// 	// 过程如下:
+// 	// 当前位置删除: node.prev.next -- node -- node.next  (node.prev.next = node.next; node.next.prev = node.prev)
+// 	node.prev.next = node.next
+// 	node.next.prev = node.prev
+
+// 	// 将node移动到head位置
+// 	// node.prev = l.head
+// 	// node.next = l.head.next
+// 	// l.head.next.prev = node
+// 	// l.head.next = node
+// 	l.addToHead(node)
+// 	return node.value
+// }
+
+// // Put ...
+// func (l *LRUCache) Put(key int, value int) {
+// 	if _, ok := l.cache[key]; !ok {
+// 		node := newNode(key, value)
+// 		l.cache[key] = node
+
+// 		node.prev = l.head
+// 		node.next = l.head.next
+// 		l.head.next.prev = node
+// 		l.head.next = node
+// 		if len(l.cache) > l.cap {
+// 			// 先删除数据
+// 			delete(l.cache, l.tail.prev.key)
+// 			// 删除节点
+// 			l.tail.prev.prev.next = l.tail.prev.next
+// 			l.tail.prev = l.tail.prev.prev
+// 		}
+// 	} else {
+// 		node := l.cache[key]
+// 		node.value = value
+// 		// 移动到头
+// 		// node.next = l.head.next
+// 		// node.prev = l.head
+// 		// l.head.next.prev = node
+// 		// l.head.next = node
+// 		l.addToHead(node)
+// 	}
+// }
+
+// func (l *LRUCache) addToHead(node *LinkNode) {
+// 	node.prev = l.head
+// 	node.next = l.head.next
+// 	l.head.next.prev = node
+// 	l.head.next = node
+// }
+
+// func (l *LRUCache) removeNode(node *LinkNode) {
+// 	node.prev.next = node.next
+// 	node.next.prev = node.prev
+// }
+
+// func (l *LRUCache) moveToHead(node *LinkNode) {
+// 	l.removeNode(node)
+// 	l.addToHead(node)
+// }
+
+// func (l *LRUCache) removeTail() *LinkNode {
+// 	node := l.tail.prev
+// 	l.removeNode(node)
+// 	return node
+// }
+///////////////////////
+// // LinkNode ...
+// type LinkNode struct {
+// 	key   int       // 当cache元素满之后，删除map中当数据可以直接使用key
+// 	value int       // value
+// 	pre   *LinkNode // 双向链表，前置
+// 	next  *LinkNode // 双向链表，后续
+// }
+
+// // LRUCache ..
+// type LRUCache struct {
+// 	cache map[int]*LinkNode // 数据缓存
+// 	cap   int               // 容量
+// 	head  *LinkNode         // 首节点
+// 	tail  *LinkNode         // 尾节点
+// }
+
+// // Constructor ...
+// func Constructor(capacity int) LRUCache {
+// 	// go会自动初始化,无须0,0,nil,nil来初始化
+// 	tail := &LinkNode{}
+// 	head := &LinkNode{}
+
+// 	// 双向链表
+// 	head.next = tail
+// 	tail.pre = head
+
+// 	return LRUCache{
+// 		cache: make(map[int]*LinkNode),
+// 		cap:   capacity,
+// 		head:  head,
+// 		tail:  tail,
+// 	}
+// }
+
+// // Get ...
+// func (l *LRUCache) Get(key int) int {
+// 	if node, ok := l.cache[key]; ok {
+// 		// 优先级更新,将该元素移动到链表head位上去
+// 		// nil<-head->next,
+// 		// pre<-node->next
+// 		// 将node到前后关系维护一下,说白了直接删除node
+// 		node.pre.next = node.next
+// 		node.next.pre = node.pre
+
+// 		tmp := l.head
+// 		// node本身要提到前面，所以他到前置为nil
+// 		node.pre = nil
+// 		// 当前head的pre为node
+// 		tmp.pre = node
+// 		// node的next为当前的head
+// 		node.next = tmp
+// 		l.head = node
+// 		return node.value
+// 	}
+// 	return -1
+// }
+
+// // Put ...
+// func (l *LRUCache) Put(key int, value int) {
+// 	if node, ok := l.cache[key]; ok {
+// 		node.value = value
+// 		// 存在直接移动到head
+// 		// 先将node删除
+// 		node.pre.next = node.next
+// 		node.next.pre = node.pre
+
+// 		tmp := l.head
+// 		// node本身要提到前面，所以他到前置为nil
+// 		node.pre = nil
+// 		// 当前head的pre为node
+// 		tmp.pre = node
+// 		// node的next为当前的head
+// 		node.next = tmp
+// 		l.head = node
+// 		l.cache[key] = node
+// 	} else {
+// 		// 如果已经超了，那么删除链表tail
+// 		if len(l.cache) > l.cap {
+// 			delete(l.cache, l.tail.key)
+// 			pre := l.tail.pre
+// 			pre.next = nil
+// 			l.tail = pre
+// 		}
+
+// 		// 不存在直接插入到head
+// 		node := &LinkNode{
+// 			key:   key,
+// 			value: value,
+// 		}
+// 		node.pre = nil
+// 		node.next = l.head
+// 		l.head.pre = node
+// 		l.head = node
+// 		// 缓存node
+// 		l.cache[key] = node
+// 	}
+// 	return
+// }
