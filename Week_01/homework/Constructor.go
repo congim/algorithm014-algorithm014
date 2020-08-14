@@ -96,8 +96,10 @@ func (l *LRUCache) Put(key int, value int) {
 		l.head.next.prev = node
 		l.head.next = node
 		if len(l.cache) > l.cap {
-			removed := l.removeTail()
-			delete(l.cache, removed.key)
+			delete(l.cache, l.tail.prev.key)
+			tmpNode := l.tail.prev
+			tmpNode.prev.next = tmpNode.next
+			tmpNode.next.prev = tmpNode.prev
 		}
 	} else {
 		node := l.cache[key]
@@ -114,28 +116,28 @@ func (l *LRUCache) Put(key int, value int) {
 	}
 }
 
-func (l *LRUCache) addToHead(node *LinkNode) {
-	node.prev = l.head
-	node.next = l.head.next
-	l.head.next.prev = node
-	l.head.next = node
-}
+// func (l *LRUCache) addToHead(node *LinkNode) {
+// 	node.prev = l.head
+// 	node.next = l.head.next
+// 	l.head.next.prev = node
+// 	l.head.next = node
+// }
 
-func (l *LRUCache) removeNode(node *LinkNode) {
-	node.prev.next = node.next
-	node.next.prev = node.prev
-}
+// func (l *LRUCache) removeNode(node *LinkNode) {
+// 	node.prev.next = node.next
+// 	node.next.prev = node.prev
+// }
 
-func (l *LRUCache) moveToHead(node *LinkNode) {
-	l.removeNode(node)
-	l.addToHead(node)
-}
+// func (l *LRUCache) moveToHead(node *LinkNode) {
+// 	l.removeNode(node)
+// 	l.addToHead(node)
+// }
 
-func (l *LRUCache) removeTail() *LinkNode {
-	node := l.tail.prev
-	l.removeNode(node)
-	return node
-}
+// func (l *LRUCache) removeTail() *LinkNode {
+// 	node := l.tail.prev
+// 	l.removeNode(node)
+// 	return node
+// }
 
 ///////////////////////
 
