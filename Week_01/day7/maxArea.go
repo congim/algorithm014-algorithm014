@@ -7,6 +7,22 @@ package day7
 // 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 
 func maxArea(height []int) int {
+	// 双指针
+	var max int
+	i, j := 0, len(height)-1
+	for i < j {
+		area := getArea(i, j, height)
+		max = getMax(max, area)
+		if height[i] < height[j] {
+			i++
+		} else {
+			j--
+		}
+	}
+	return max
+}
+
+func maxArea1(height []int) int {
 	// 枚举, 水的容量等于长*宽，然后记录下来max。看那一次最大
 	var max int
 	for i := 0; i < len(height); i++ {
