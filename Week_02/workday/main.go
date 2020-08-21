@@ -2,5 +2,6 @@ package main
 
 func main() {
 	// removeOuterParentheses("(()())(())")
-	isValid("(()())(())")
+	// isValid("(()())(())")
+	addDigits(132211212)
 }
