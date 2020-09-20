@@ -1,5 +1,14 @@
 学习笔记
 
+### 解题步骤
+
+- Clarificaiton（了解清楚题目意思及必要的交流）
+- Possible solution -> Optimal (Time & Space)
+- Code （写出最佳解答）
+- Test (多case 测试)
+
+
+
 ### 递归代码模板
 Python 代码模板
 ```python
